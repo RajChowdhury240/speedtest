@@ -1,6 +1,6 @@
 # speedtest
 
-Animated terminal speedtest. Go + Bubble Tea TUI on top of [`speedtest-go`](https://github.com/showwin/speedtest-go).
+Animated terminal speedtest. Go + Bubble Tea TUI.
 
 Streams live ping, jitter, download, and upload from the nearest Ookla server with gradient bars and stage transitions.
 
@@ -31,9 +31,3 @@ internal/ui/ui.go          Bubble Tea model, lipgloss styling
 ```
 
 Engine emits staged `Update` values (`init` → `user` → `servers` → `ping` → `download` → `upload` → `done`). UI consumes channel, renders frame.
-
-## Stack
-
-- `charmbracelet/bubbletea` — TUI runtime
-- `charmbracelet/lipgloss` — styling
-- `showwin/speedtest-go` — Ookla client
