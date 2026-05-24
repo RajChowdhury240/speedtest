@@ -6,6 +6,9 @@ Streams live ping, jitter, download, and upload from the nearest Ookla server wi
 
 ![demo](demo.gif)
 
+<img width="1606" height="1048" alt="image" src="https://github.com/user-attachments/assets/373e9c3a-d4b3-4fe7-ac73-78c818c10ee6" />
+
+
 ## Install
 
 ```bash
