@@ -4,6 +4,8 @@ Animated terminal speedtest. Go + Bubble Tea TUI on top of [`speedtest-go`](http
 
 Streams live ping, jitter, download, and upload from the nearest Ookla server with gradient bars and stage transitions.
 
+![demo](demo.gif)
+
 ## Install
 
 ```bash
