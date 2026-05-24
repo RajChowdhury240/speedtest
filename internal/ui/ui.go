@@ -114,6 +114,8 @@ type model struct {
 	ulMbps  float64
 	dlPeak  float64
 	ulPeak  float64
+
+	termW, termH int
 }
 
 func newModel(ctx context.Context) *model {
@@ -143,6 +145,9 @@ func (m *model) waitForUpdate() tea.Cmd {
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.termW, m.termH = msg.Width, msg.Height
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "q", "ctrl+c", "esc":
@@ -251,7 +256,20 @@ func (m *model) View() string {
 	b.WriteString("\n\n")
 	b.WriteString(m.footer())
 	b.WriteString("\n")
-	return b.String()
+	content := b.String()
+	const contentW = 82
+	if m.termW > contentW {
+		pad := strings.Repeat(" ", (m.termW-contentW)/2)
+		lines := strings.Split(content, "\n")
+		for i, ln := range lines {
+			lines[i] = pad + ln
+		}
+		content = strings.Join(lines, "\n")
+	}
+	if m.termH > 0 {
+		return lipgloss.PlaceVertical(m.termH, lipgloss.Center, content)
+	}
+	return content
 }
 
 // header — gradient brand mark
@@ -308,32 +326,34 @@ func (m *model) stagePipeline() string {
 func (m *model) connectionPanel() string {
 	title := lipgloss.NewStyle().Foreground(cAccent).Bold(true).Render("◉ YOU")
 	if m.ip == "" {
-		return box.Width(40).Render(title + "\n" + dim.Render(m.sp()+" resolving…"))
+		return box.Width(34).Render(title + "\n" + dim.Render(m.sp()+" resolving…"))
 	}
 	rows := []string{
 		title,
 		"",
 		kv("IP", m.ip),
-		kv("ISP", m.isp),
+		kv("ISP", trunc(m.isp, 22)),
 		kv("Coord", fmt.Sprintf("%s, %s", m.lat, m.lon)),
 	}
-	return box.Width(40).Render(strings.Join(rows, "\n"))
+	return box.Width(34).Render(strings.Join(rows, "\n"))
 }
 
 func (m *model) serverPanel() string {
 	title := lipgloss.NewStyle().Foreground(cAccent).Bold(true).Render("◉ SERVER")
 	if m.srvName == "" {
-		return box.Width(40).Render(title + "\n" + dim.Render(m.sp()+" finding nearest…"))
+		return box.Width(46).Render(title + "\n" + dim.Render(m.sp()+" finding nearest…"))
 	}
+	const inner = 40
+	const valW = inner - 8
 	rows := []string{
 		title,
 		"",
-		kv("Host", m.srvSponsor),
-		kv("City", fmt.Sprintf("%s, %s", m.srvName, m.srvCountry)),
-		kv("URL", trunc(m.srvHost, 28)),
+		kv("Host", trunc(m.srvSponsor, valW)),
+		kv("City", trunc(fmt.Sprintf("%s, %s", m.srvName, m.srvCountry), valW)),
+		kvWrap("URL", m.srvHost, valW),
 		kv("Dist", fmt.Sprintf("%.0f km  ·  id %s", m.distance, m.srvID)),
 	}
-	return box.Width(40).Render(strings.Join(rows, "\n"))
+	return box.Width(46).Render(strings.Join(rows, "\n"))
 }
 
 func (m *model) latencyPanel() string {
@@ -401,6 +421,30 @@ func (m *model) footer() string {
 
 func kv(k, v string) string {
 	return label.Width(7).Render(k) + " " + val.Render(v)
+}
+
+func kvWrap(k, v string, valW int) string {
+	if valW <= 0 || len(v) <= valW {
+		return kv(k, v)
+	}
+	indent := strings.Repeat(" ", 8)
+	var lines []string
+	first := true
+	for len(v) > 0 {
+		n := valW
+		if n > len(v) {
+			n = len(v)
+		}
+		chunk := v[:n]
+		v = v[n:]
+		if first {
+			lines = append(lines, label.Width(7).Render(k)+" "+val.Render(chunk))
+			first = false
+		} else {
+			lines = append(lines, indent+val.Render(chunk))
+		}
+	}
+	return strings.Join(lines, "\n")
 }
 
 func trunc(s string, n int) string {
