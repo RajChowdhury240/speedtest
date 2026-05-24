@@ -394,8 +394,7 @@ func (m *model) meterPanel(name string, mbps, peak float64, hist []float64, ramp
 func (m *model) footer() string {
 	left := dim.Render(fmt.Sprintf("⏱  %5.1fs", time.Since(m.startAt).Seconds()))
 	mid := dim.Render("press q to quit")
-	right := faint.Render("rajchowdhury269@gmail.com")
-	return "  " + left + "    " + mid + "    " + right
+	return "  " + left + "    " + mid
 }
 
 // ── helpers ────────────────────────────────────────────────────────────────
