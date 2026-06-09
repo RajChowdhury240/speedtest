@@ -1,6 +1,6 @@
 # speedtest
 
-Animated terminal speedtest. Go + Bubble Tea TUI.
+#### Animated terminal speedtest. Go + Bubble Tea TUI.
 
 Streams live ping, jitter, download, and upload from the nearest Ookla server with gradient bars and stage transitions.
 
